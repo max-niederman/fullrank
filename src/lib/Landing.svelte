@@ -142,6 +142,10 @@
     padding: 0 2rem;
   }
 
+  h1 {
+    margin-top: 6rem;
+  }
+
   .drop-zone {
     margin: 2rem 0;
     border: 2px dashed color-mix(in srgb, var(--col-fg) 30%, transparent);
