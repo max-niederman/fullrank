@@ -16,5 +16,9 @@
     "svelte-check": "^4.2.2",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
+  },
+  "dependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.8",
+    "sass-embedded": "^1.89.2"
   }
 }
