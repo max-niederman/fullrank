@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fontsource-variable/space-grotesk": "^5.2.8",
-    "sass-embedded": "^1.89.2"
+    "sass-embedded": "^1.89.2",
+    "vectorious": "^6.1.14"
   }
 }
