@@ -1,8 +1,10 @@
 mod dist;
+mod trunc_mvn;
 mod utils;
 
 use dist::*;
 
+use nalgebra::DMatrix;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -38,4 +40,15 @@ pub fn model_comparisons(
             < n,
         "comparison indices must be less than the number of items"
     );
+
+    let tilt_matrix = {
+        let mut tilt_matrix = DMatrix::zeros(n, n);
+        for (i, c) in comparisons.iter().enumerate() {
+            tilt_matrix[(i, c.winner)] = 1.0;
+            tilt_matrix[(i, c.loser)] = -1.0;
+        }
+        tilt_matrix
+    };
+
+    todo!()
 }
