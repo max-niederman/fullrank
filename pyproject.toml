@@ -1,0 +1,17 @@
+[project]
+name = "fullrank"
+version = "0.1.0"
+description = "Fullrank is a tool for probabilistic ranking of lists using Bayesian inference"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.3.1",
+    "scipy>=1.16.0",
+    "textual>=4.0.0",
+    "typer>=0.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.10.3",
+]
