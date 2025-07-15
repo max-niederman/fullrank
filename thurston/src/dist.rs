@@ -3,7 +3,7 @@ use rand::Rng;
 use rand_distr::StandardNormal;
 use wasm_bindgen::prelude::*;
 
-use crate::trunc_mvn;
+use crate::{stats::SampleStats, trunc_mvn};
 
 #[wasm_bindgen]
 pub struct NormalDistribution {
@@ -150,21 +150,15 @@ impl ClosedSkewNormalDistribution {
     }
 
     #[wasm_bindgen]
-    pub fn sample(&self, n: usize) -> Box<[f32]> {
-        self.sample_convolutional(n, &mut rand::thread_rng())
-            .as_slice()
-            .to_vec()
-            .into_boxed_slice()
+    pub fn sample_stats(&self, n: usize) -> SampleStats {
+        let samples = self.sample_n(n, &mut rand::thread_rng());
+        SampleStats { samples }
     }
 
     /// Sample `n` values column-wise from the distribution.
     ///
     /// See section 2.1 of doi:10.1111/j.1467-9469.2006.00503.x for details on the implementation.
-    pub(crate) fn sample_convolutional(
-        &self,
-        num_samples: usize,
-        rng: &mut impl Rng,
-    ) -> DMatrix<f32> {
+    pub(crate) fn sample_n(&self, num_samples: usize, rng: &mut impl Rng) -> DMatrix<f32> {
         let dim = self.dimension();
         let latent_dim = self.latent_dimension();
 
@@ -196,7 +190,6 @@ impl ClosedSkewNormalDistribution {
         let v1 = DMatrix::from_distribution(dim, num_samples, &StandardNormal, rng);
 
         // Compute the final samples
-        let mean_matrix = DMatrix::from_fn(dim, num_samples, |i, _| self.mean[i]);
-        mean_matrix + &b0 * v0 + &b1 * v1
+        &self.mean * DMatrix::from_element(1, num_samples, 1.) + &b0 * v0 + &b1 * v1
     }
 }

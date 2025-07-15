@@ -1,6 +1,7 @@
 mod dist;
 mod trunc_mvn;
 mod utils;
+mod stats;
 
 use dist::*;
 
@@ -27,6 +28,7 @@ impl Comparison {
 pub fn model_comparisons(
     prior: NormalDistribution,
     comparisons: Vec<Comparison>,
+    probit_scale: f32,
 ) -> ClosedSkewNormalDistribution {
     let m = comparisons.len();
     let n = prior.mean.len();
@@ -50,5 +52,14 @@ pub fn model_comparisons(
         tilt_matrix
     };
 
-    todo!()
+    ClosedSkewNormalDistribution {
+        mean: prior.mean.clone(),
+        covariance: prior.covariance,
+        tilt_matrix,
+        latent_mean: -prior.mean,
+        latent_covariance: probit_scale * DMatrix::identity(m, m),
+    }
 }
+
+pub use dist::{ClosedSkewNormalDistribution, NormalDistribution};
+pub use stats::SampleStats;
