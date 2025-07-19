@@ -4,9 +4,8 @@ from textual.app import App, ComposeResult
 from textual.containers import HorizontalGroup, Center
 from textual.widgets import Header, Footer, Button, ProgressBar, Static
 
-from fullrank import infer
+from fullrank import infer, posterior_stats
 from fullrank.comparison import Comparison
-from fullrank.entropy_stats import comparison_entropy_stats
 
 
 class ComparisonApp(App[list[Comparison]]):
@@ -55,13 +54,17 @@ class ComparisonApp(App[list[Comparison]]):
     def compose(self) -> ComposeResult:
         yield Header(name="Fullrank", show_clock=True)
         with Center(id="entropy-stats"):
-            yield Static("Average Comparison Entropy")
-            yield ProgressBar(total=1.0, show_eta=False, show_percentage=False, id="entropy-bar")
-            yield Static("1.00", id="entropy-value")
+            yield Static("Entropy of Posterior")
+            yield ProgressBar(
+                total=1.0, show_eta=False, show_percentage=False, id="entropy-bar"
+            )
+            yield Static("0.00", id="entropy-value")
             yield Static(" bits")
         with HorizontalGroup(id="comparison-buttons"):
             yield Button(self.items[self.left_index], action="left", id="left-button")
-            yield Button(self.items[self.right_index], action="right", id="right-button")
+            yield Button(
+                self.items[self.right_index], action="right", id="right-button"
+            )
         yield Footer()
 
     def action_left(self) -> None:
@@ -81,16 +84,26 @@ class ComparisonApp(App[list[Comparison]]):
         self.next_comparison()
 
     def next_comparison(self) -> None:
-        posterior = infer(np.zeros(len(self.items)), np.eye(len(self.items)), self.comparisons, probit_scale=self.probit_scale)
-        entropy_stats = comparison_entropy_stats(posterior.sample(100), posterior.probit_scale)
+        posterior = infer(
+            np.zeros(len(self.items)),
+            np.eye(len(self.items)),
+            self.comparisons,
+            probit_scale=self.probit_scale,
+        )
 
-        avg_entropy_bits = entropy_stats.avg_entropy / np.log(2)
-        self.query_one("#entropy-value").update(f"{avg_entropy_bits:.2f}")
-        self.query_one("#entropy-bar").update(progress=avg_entropy_bits)
+        samples = posterior.sample(100)
 
-        self.left_index, self.right_index = entropy_stats.max_entropy_comparison
+        post_lddp = posterior_stats.lddp(posterior, samples)
+        self.query_one("#entropy-value").update(f"{post_lddp:.2f}")
+        self.query_one("#entropy-bar").update(progress=1.0 - np.exp(-post_lddp))
+
+        comp_skewness_norms = posterior_stats.comparison_skewness_norms(posterior)
+        np.fill_diagonal(comp_skewness_norms, np.inf)
+        self.left_index, self.right_index = np.unravel_index(
+            np.argmin(comp_skewness_norms), comp_skewness_norms.shape
+        )
         self.query_one("#left-button").label = self.items[self.left_index]
         self.query_one("#right-button").label = self.items[self.right_index]
-    
+
     def action_quit(self) -> None:
         self.exit(self.comparisons)

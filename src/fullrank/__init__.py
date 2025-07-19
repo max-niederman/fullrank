@@ -33,6 +33,9 @@ class Posterior:
     ):
         m = comp_matrix.shape[0]
 
+        self.prior_mean = prior_mean
+        self.prior_cov = prior_cov
+        self.comp_matrix = comp_matrix
         self.probit_scale = probit_scale
         self.xi = prior_mean  # ξ <- μ
         self.Delta = prior_cov.transpose() @ comp_matrix.transpose()  # Δ <- ΣᵀD
