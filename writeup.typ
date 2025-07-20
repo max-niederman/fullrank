@@ -1,13 +1,11 @@
 #set text(size: 13pt, font: "Garamond Premier Pro")
 
-= Fullrank: Bayesian Noisy Sorting
-
 Fullrank is an interactive CLI tool for Bayesian inference of list rankings based on noisy comparisons.
 It takes a list of items,
 then efficiently prompts the user to compare pairs of items until the user decides that the posterior distribution is sufficiently low entropy.
 It can then sample from the resulting posterior distribution and compute various statistics.
 
-== Background
+= Background
 
 Deterministic sorting algorithms rank lists by comparing pairs of items.
 If an item is greater than another,
@@ -26,7 +24,7 @@ For example, the commonly used #link("https://en.wikipedia.org/wiki/Bradley%E2%8
 $ p(i > j) = sigma (s_i - s_j) $
 where $s_i$ denotes the latent skill of item $i$ and $sigma$ is the logistic function.
 
-== Motivation
+= Motivation
 
 Gwern Branwen's #link("https://gwern.net/resorter")[Resorter] is a CLI tool for
 manual noisy sorting of lists based on the #link("https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model")[Bradley--Terry model].
@@ -39,7 +37,7 @@ However, its frequentist approach limits it in a few ways:
 As a project to learn more about Bayesian inference,
 I decided to build a Bayesian version of Resorter.
 
-== Thurstonian Model
+= Thurstonian Model
 
 The Bradley--Terry model is quite nice for maximum-likelihood estimation,
 but I was unable to get it to work well in a Bayesian setting.
@@ -96,3 +94,34 @@ Therefore,
 $
   p(bold(s)|D) & = phi (bold(s); bold(mu), Sigma) Phi_m (D bold(s)) [Phi_m (D bold(mu); I_m + D Sigma D^T)]^(-1) "."
 $
+
+This is called a unified skew-normal (SUN) distribution,
+and it is the posterior of most probit models.
+Using the convention of @sun-props, we can write
+
+$
+  bold(s)|D & ~ "SUN"_(n,m)(bold(mu), Sigma, Sigma^T D, D bold(mu), I_m + D Sigma D^T) "."
+$
+
+= Efficient Sampling
+
+@sun-props also gives us a convolutional representation of the posterior.
+If
+$
+  bold(u) & ~ cal(N)(0, Sigma - Sigma^T D (I_m + D Sigma D^T)^(-1) D^T Sigma)", and" \
+  bold(v) & ~ cal(N)_(-D bold(mu))(0, I_m + D Sigma D^T) ","
+$
+where $cal(N)_(bold(tau))$ denotes the normal distribution truncated below $bold(tau)$, then
+$
+  bold(mu) + bold(u) + Sigma^T D (I_m + D Sigma D^T)^(-1) bold(v) & ~ "SUN"_(n,m)(bold(mu), Sigma, Sigma^T D, D bold(mu), I_m + D Sigma D^T) "."
+$
+
+Fullrank exploits this fact to efficiently sample from the posterior
+using samples of $bold(u)$ and $bold(v)$.
+
+= Optimal Comparison Choice
+
+Fullrank always presents the user with the most informative comparison.
+I.e., the comparison whose probit has maximal entropy.
+
+#bibliography("bibliography.bib")
