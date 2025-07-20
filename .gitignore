@@ -8,3 +8,4 @@ dist/
 *.pyd
 *.pyw
 *.pyz
+sciagraph-result

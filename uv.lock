@@ -3,6 +3,11 @@ revision = 2
 requires-python = ">=3.12"
 
 [[package]]
+name = "approxcdf"
+version = "0.0.1"
+source = { git = "https://www.github.com/david-cortes/approxcdf.git#0f1419275eaa703c0499ec27e01206e80436e6a3" }
+
+[[package]]
 name = "click"
 version = "8.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -103,6 +108,7 @@ name = "fullrank"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "approxcdf" },
     { name = "numpy" },
     { name = "scipy" },
     { name = "textual" },
@@ -116,6 +122,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "approxcdf", git = "https://www.github.com/david-cortes/approxcdf.git" },
     { name = "numpy", specifier = ">=2.3.1" },
     { name = "scipy", specifier = ">=1.16.0" },
     { name = "textual", specifier = ">=4.0.0" },

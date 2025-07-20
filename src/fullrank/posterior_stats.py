@@ -1,16 +1,17 @@
-from dataclasses import dataclass
-
 import numpy as np
-from scipy import special
 from scipy.stats import multivariate_normal
+import approxcdf
 
 from fullrank import Posterior
 
 
-def lddp(posterior: Posterior, samples: np.ndarray | int = 100) -> float:
+def lddp(
+    posterior: Posterior,
+    samples: np.ndarray | int = 100,
+) -> float:
     """
-    Compute the KL divergence of the posterior from the prior.
-    This is also the LDDP of the posterior under the prior's probability measure.
+    Compute the LDDP of the posterior under the prior's probability measure.
+    This is also the negative KL divergence from the prior to the posterior.
     """
     if isinstance(samples, int):
         samples = posterior.sample(samples)
@@ -26,12 +27,14 @@ def lddp(posterior: Posterior, samples: np.ndarray | int = 100) -> float:
         cov=np.eye(posterior.comp_matrix.shape[0]) + D @ posterior.prior_cov @ D.T,
     )
 
-    # E[ln Phi(D x)/phi(D x)]
-    log_likelihood_ratio = multivariate_normal.logpdf(
-        (D @ samples).T, cov=np.eye(m)
-    ).mean()
+    # E[ln Phi(D x)]
+    log_likelihood_ratio = sum(
+        approxcdf.mvn_cdf(D @ sample, np.eye(m), is_standardized=True, logp=True)
+        for sample in samples.T
+    ) / len(samples.T)
 
-    return -log_likelihood_ratio + log_normalization_constant
+    # -E[ln p(x|D) / p(x)] = -E[ln Phi(D x) / Z]
+    return -(log_likelihood_ratio - log_normalization_constant)
 
 
 def comparison_skewness_norms(posterior: Posterior) -> np.ndarray:

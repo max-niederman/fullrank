@@ -54,7 +54,7 @@ class ComparisonApp(App[list[Comparison]]):
     def compose(self) -> ComposeResult:
         yield Header(name="Fullrank", show_clock=True)
         with Center(id="entropy-stats"):
-            yield Static("Entropy of Posterior")
+            yield Static("KL(Posterior || Prior)")
             yield ProgressBar(
                 total=1.0, show_eta=False, show_percentage=False, id="entropy-bar"
             )
@@ -91,11 +91,9 @@ class ComparisonApp(App[list[Comparison]]):
             probit_scale=self.probit_scale,
         )
 
-        samples = posterior.sample(100)
-
-        post_lddp = posterior_stats.lddp(posterior, samples)
-        self.query_one("#entropy-value").update(f"{post_lddp:.2f}")
-        self.query_one("#entropy-bar").update(progress=1.0 - np.exp(-post_lddp))
+        kl_div = -posterior_stats.lddp(posterior, samples=100)
+        self.query_one("#entropy-value").update(f"{kl_div:.2f}")
+        self.query_one("#entropy-bar").update(progress=1.0 - np.exp(-kl_div))
 
         comp_skewness_norms = posterior_stats.comparison_skewness_norms(posterior)
         np.fill_diagonal(comp_skewness_norms, np.inf)

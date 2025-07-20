@@ -5,6 +5,7 @@ description = "Fullrank is a tool for probabilistic ranking of lists using Bayes
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "approxcdf",
     "numpy>=2.3.1",
     "scipy>=1.16.0",
     "textual>=4.0.0",
@@ -15,3 +16,6 @@ dependencies = [
 dev = [
     "matplotlib>=3.10.3",
 ]
+
+[tool.uv.sources]
+approxcdf = { git = "https://www.github.com/david-cortes/approxcdf.git" }
