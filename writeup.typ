@@ -123,28 +123,20 @@ using samples of $bold(u)$ and $bold(v)$.
 
 #let inc = math.class("relation", "⧡")
 
-Fullrank always presents the user with the most informative comparison.
-I.e., the comparison whose probit has maximal entropy.
-Note that entropy of a continuous variable, called the limiting density of discrete points and denoted $H(dot)$,
-is only defined relative to a probability measure. @jaynes-info
-Fullrank uses the prior's probability measure,
-which results in an information measure equivalent to the negative KL divergence from the prior.
+Ideally, Fullrank should always present the user with the most informative comparison.
+That is, the comparison whose probit has maximal entropy.
 
-Estimating the entropy itself is quite difficult,
-but we can derive an easier method for comparing the entropies of certain unified skew-normal variables like the ones in our posterior.
-In this section,
-I will use the notation $y inc x$ to denote that $y$ is an increasing function of $x$.
+Unified skew-normal distributions are closed under full-rank linear transformations,
+so each comparison probit is distributed according to a one-dimensional SUN distribution.
+At least in the case of a standard normal prior, each comparison has identical first and second moments,
+so intuitively the entropy should be controlled by the skewness.
 
-The entropy under the probability measure of $cal(N)(mu, sigma^2)$ to a 1-dimensional unified skew-normal variable
-$x ~ "SUN"_(1,m)(mu, sigma^2, Delta, bold(tau), I_m + Delta^T sigma^(-2) Delta)$
-is given by
-$ H(x) = - integral_RR p(x) ln p(x) / (phi (x; mu, sigma^2)) d x "." $
-We can then substitute the SUN density from @sun-props to get
-$
-  H(x) & = - integral_RR phi (x; mu, sigma^2) (Phi_m (bold(tau) + Delta^T sigma^(-2) (x - mu))) / (Phi_m (bold(tau); I_m + Delta^T sigma^(-2) Delta)) ln (Phi_m (bold(tau) + Delta^T sigma^(-2) (x - mu))) / (Phi_m (bold(tau); I_m + Delta^T sigma^(-2) Delta)) d x \
-  & inc - integral_RR phi (x; mu, sigma^2) Phi_m (bold(tau) + Delta^T sigma^(-2) (x - mu)) ln Phi_m (bold(tau) + Delta^T sigma^(-2) (x - mu)) d x "."
-$
-Now we reparameterize the integral with $z = (x - mu) / sigma$:
-$ H(x) inc - sigma integral_RR phi (z) Phi_m (bold(tau) + Delta^T sigma^(-1) z) ln Phi_m (bold(tau) + Delta^T sigma^(-1) z) d z "." $
+Fullrank currently assumes that the entropy decreases as the $L_2$ norm of the skewness parameter $Delta$ increases,
+which seems to work well in practice.
+However, I haven't been able to prove that this works,
+and it definitely fails for some choices of prior covariance
+(though these are currently not supported anyway).
+If you have any better ideas for choosing comparisons,
+please let me know!
 
 #bibliography("bibliography.bib")
