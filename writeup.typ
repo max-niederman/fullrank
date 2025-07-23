@@ -131,12 +131,17 @@ so each comparison probit is distributed according to a one-dimensional SUN dist
 At least in the case of a standard normal prior, each comparison has identical first and second moments,
 so intuitively the entropy should be controlled by the skewness.
 
-Fullrank currently assumes that the entropy decreases as the $L_2$ norm of the skewness parameter $Delta$ increases,
+Fullrank currently assumes that the entropy is decreasing in the $L_2$ norm of the skewness parameter $Delta$,
 which seems to work well in practice.
 However, I haven't been able to prove that this works,
-and it definitely fails for some choices of prior covariance
+and it definitely fails for certain non-scalar choices of prior covariance
 (though these are currently not supported anyway).
 If you have any better ideas for choosing comparisons,
 please let me know!
+
+= Using the Posterior
+
+Fullrank has a variety of tools for working with the posterior distribution.
+
 
 #bibliography("bibliography.bib")

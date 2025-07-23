@@ -4,8 +4,7 @@ from textual.app import App, ComposeResult
 from textual.containers import HorizontalGroup, Center
 from textual.widgets import Header, Footer, Button, ProgressBar, Static
 
-from fullrank import infer, posterior_stats
-from fullrank.comparison import Comparison
+from fullrank import infer, posterior_stats, Comparison
 
 
 class ComparisonApp(App[list[Comparison]]):
@@ -42,14 +41,14 @@ class ComparisonApp(App[list[Comparison]]):
     def __init__(
         self,
         items: list[str],
-        probit_scale: float = 1.0,
+        prior_var: float = 1.0,
     ):
         super().__init__()
         self.items = items
         self.comparisons: list[Comparison] = []
         self.left_index = 0
         self.right_index = 1
-        self.probit_scale = probit_scale
+        self.prior_var = prior_var
 
     def compose(self) -> ComposeResult:
         yield Header(name="Fullrank", show_clock=True)
@@ -86,22 +85,22 @@ class ComparisonApp(App[list[Comparison]]):
     def next_comparison(self) -> None:
         posterior = infer(
             np.zeros(len(self.items)),
-            np.eye(len(self.items)),
+            self.prior_var * np.eye(len(self.items)),
             self.comparisons,
-            probit_scale=self.probit_scale,
         )
+
+        comp_skewness_norms = posterior_stats.comparison_skewness_norms(posterior)
+        np.fill_diagonal(comp_skewness_norms, np.inf)
+        self.left_index, self.right_index = map(
+            int,
+            np.unravel_index(np.argmin(comp_skewness_norms), comp_skewness_norms.shape),
+        )
+        self.query_one("#left-button").label = self.items[self.left_index]
+        self.query_one("#right-button").label = self.items[self.right_index]
 
         kl_div = -posterior_stats.lddp(posterior, samples=100)
         self.query_one("#entropy-value").update(f"{kl_div:.2f}")
         self.query_one("#entropy-bar").update(progress=1.0 - np.exp(-kl_div))
-
-        comp_skewness_norms = posterior_stats.comparison_skewness_norms(posterior)
-        np.fill_diagonal(comp_skewness_norms, np.inf)
-        self.left_index, self.right_index = np.unravel_index(
-            np.argmin(comp_skewness_norms), comp_skewness_norms.shape
-        )
-        self.query_one("#left-button").label = self.items[self.left_index]
-        self.query_one("#right-button").label = self.items[self.right_index]
 
     def action_quit(self) -> None:
         self.exit(self.comparisons)
