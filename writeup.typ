@@ -141,7 +141,11 @@ please let me know!
 
 = Using the Posterior
 
-Fullrank has a variety of tools for working with the posterior distribution.
+Fullrank can be used either as a CLI tool or as a Python library to get raw samples from the posterior distribution.
+It also implements a few useful statistics:
+
+```bash
+```
 
 
 #bibliography("bibliography.bib")

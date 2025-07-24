@@ -18,7 +18,6 @@ def infer(
         comp_matrix[i, comparison["loser"]] = -1
     return Posterior(prior_mean, prior_cov, comp_matrix)
 
-
 class Posterior:
     """
     A posterior distribution over the scores of the items under the Thurstonian model.
