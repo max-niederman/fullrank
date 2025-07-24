@@ -49,7 +49,7 @@ manual noisy sorting of lists based on the [Bradley–Terry model](https://en.wi
 However, its frequentist approach limits it in a few ways:
 
 - It has to use imperfect heuristics to guess which comparison is most informative.
-- There's no principled way to quantify how accurate the resulting [maximum-likelihood ranking](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) is, or tell when to stop comparing items.
+- There's no principled way to quantify how accurate the resulting [maximum-likelihood](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) ranking is, or tell when to stop comparing items.
 - It can't answer questions like "What is the probability that item $i$ is truly the best item?"
 
 As a project to learn more about Bayesian inference,
@@ -69,11 +69,12 @@ p(\mathbf{s}|w > l)
 \left[\int_{\mathbb{R}^n} \phi (\mathbf{s}; \boldsymbol{\mu}, \Sigma) \prod_i^m \sigma (\mathbf{s}_{w_i} - \mathbf{s}_{l_i}) d \mathbf{s}\right]^{-1}
 ```
 
-where $\phi$ denotes the normal density, $m$ is the number of comparisons, and $w_i$ and $l_i$ are the winning and losing items in the $i$th comparison.
+where $\phi$ denotes the normal density, $m$ is the number of comparisons, and $w_i$ and $l_i$ are the winning and losing items in comparison $i$.
 It appears some researchers have designed efficient sampling procedures for this posterior,
 but frankly they are beyond me.
 
-Instead, I used a probability model very similar to Bradley–Terry, but using a probit link instead of a logit link.
+Instead, I used a probability model very similar to Bradley–Terry,
+but using a [probit](https://en.wikipedia.org/wiki/Probit) link instead of a logit link.
 That is, under the Thurstonian model,
 
 ```math
@@ -84,7 +85,7 @@ where $\Phi$ denotes the cumulative distribution function of the standard normal
 
 I'll now derive the posterior density in the Thurstonian model.
 For convenience, I'll represent the observed comparisons as a matrix $D \in \mathbb{R}^{m \times n}$ mapping score vectors to probits for each comparison.
-That is, $D_{i j} = 1$ if item $j$ wins the $i$th comparison, $D_{i j} = -1$ if item $j$ loses the $i$th comparison, and $D_{i j} = 0$ otherwise.
+That is, $D_{i j} = 1$ if item $j$ wins comparison $i$, $D_{i j} = -1$ if item $j$ loses comparison $i$, and $D_{i j} = 0$ otherwise.
 
 ```math
 \begin{align}
@@ -100,7 +101,7 @@ using the multivariate normal CDF $\Phi_m$:
 
 ```math
 \begin{align}
-\Pr[D \mathbf{t} < \mathbf{z}] &= \Pr[D \mathbf{t} < \mathbf{z}] \\\\
+\Pr[D \mathbf{t} < \mathbf{z}]
 &= \Pr[D (\mathbf{t} - \boldsymbol{\mu}) + D \boldsymbol{\mu} < \mathbf{z}] \\\\
 &= \Pr[D \boldsymbol{\mu} < \mathbf{z} - D (\mathbf{t} - \boldsymbol{\mu})]
 \end{align}
@@ -124,7 +125,7 @@ p(\mathbf{s}|D) = \phi (\mathbf{s}; \boldsymbol{\mu}, \Sigma) \Phi_m (D \mathbf{
 
 This is called a unified skew-normal (SUN) distribution,
 and it is the posterior of most probit models.
-Using the convention of [1], we can write
+Using the convention of Arrellano-Valle and Azzalini[^1], we can write
 
 ```math
 \mathbf{s}|D \sim \text{SUN}_{n,m}(\boldsymbol{\mu}, \Sigma, \Sigma^T D, D \boldsymbol{\mu}, I_m + D \Sigma D^T)
@@ -132,7 +133,7 @@ Using the convention of [1], we can write
 
 ## Efficient Sampling
 
-[1] also gives us a convolutional representation of the posterior.
+Arrellano-Valle and Azzalini[^1] also gives us a convolutional representation of the posterior.
 If
 
 ```math
@@ -169,6 +170,4 @@ and it definitely fails for certain non-scalar choices of prior covariance
 If you have any better ideas for choosing comparisons,
 please let me know!
 
-## References
-
-[1] R. B. Arellano-Valle and A. Azzalini, "Some properties of the unified skew-normal distribution," *Statistical Papers*, vol. 63, pp. 461–487, 2022. [doi:10.1007/s00362-021-01235-2](https://doi.org/10.1007/s00362-021-01235-2)
+[^1]: R. B. Arellano-Valle and A. Azzalini, "Some properties of the unified skew-normal distribution," _Statistical Papers_, vol. 63, pp. 461–487, 2022. [doi:10.1007/s00362-021-01235-2](https://doi.org/10.1007/s00362-021-01235-2)

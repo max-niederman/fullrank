@@ -76,8 +76,7 @@ It turns out that the normalization constant can be represented quite nicely
 using the multivariate normal CDF $Phi_m$:
 
 $
-  Pr[D bold(t) < bold(z)] & = Pr[D bold(t) < bold(z)]                               \
-                          & = Pr[D (bold(t) - bold(mu)) + D bold(mu) < bold(z)]     \
+  Pr[D bold(t) < bold(z)] & = Pr[D (bold(t) - bold(mu)) + D bold(mu) < bold(z)]     \
                           & = Pr[D bold(mu) < bold(z) - D (bold(t) - bold(mu))] "."
 $
 
