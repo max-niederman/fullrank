@@ -144,8 +144,27 @@ please let me know!
 Fullrank can be used either as a CLI tool or as a Python library to get raw samples from the posterior distribution.
 It also implements a few useful statistics:
 
-```bash
+```
+$ fullrank compare fruits.txt | fullrank stats --entropy
+Finished inferring posterior.
+Sampling... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:01
+Mean:  [-6.76037714e-01 -1.67944768e+00  1.61404920e-03  1.58269652e+00
+  7.65822584e-01]
+Ranking Deciles:
+[[0 1 1 1 1 1 1 1 1 1]
+ [0 0 0 0 0 0 0 0 1 2]
+ [0 0 2 2 2 2 2 2 2 4]
+ [0 2 3 4 4 4 4 4 4 4]
+ [0 3 3 3 3 3 3 3 3 4]]
+Ranking Probabilities (rows are items, columns are rankings):
+[[6.0780e-02 9.3543e-01 3.7400e-03 0.0000e+00 5.0000e-05]
+ [7.8972e-01 6.2380e-02 1.4145e-01 1.7000e-04 6.2800e-03]
+ [1.4292e-01 2.1300e-03 7.3222e-01 5.4500e-03 1.1728e-01]
+ [6.4300e-03 6.0000e-05 1.1810e-01 1.2262e-01 7.5279e-01]
+ [1.5000e-04 0.0000e+00 4.4900e-03 8.7176e-01 1.2360e-01]]
+Entropy:  -4.45792309625278
 ```
 
+You can see the source code on GitHub #link("https://github.com/max-niederman/fullrank")[here].
 
 #bibliography("bibliography.bib")

@@ -5,6 +5,20 @@ It takes a list of items,
 then efficiently prompts the user to compare pairs of items until the user decides that the posterior distribution is sufficiently low entropy.
 It can then sample from the resulting posterior distribution and compute various statistics.
 
+## Installation and Usage
+
+```bash
+# install via pip
+pip install git+https://github.com/max-niederman/fullrank.git
+
+# interactively compare items
+fullrank compare items.txt > comparisons.json
+# infer a ranking distribution and compute statistics
+fullrank stats < comparisons.json
+# compute raw samples in JSONL format for your own processing
+fullrank raw-sample 10000 samples.jsonl < comparisons.json
+```
+
 ## Background
 
 Deterministic sorting algorithms rank lists by comparing pairs of items.
@@ -155,34 +169,6 @@ and it definitely fails for certain non-scalar choices of prior covariance
 If you have any better ideas for choosing comparisons,
 please let me know!
 
-## Using the Posterior
-
-Fullrank can be used either as a CLI tool or as a Python library to get raw samples from the posterior distribution.
-It also implements a few useful statistics:
-
-```
-$ fullrank compare fruits.txt | fullrank stats --entropy
-Finished inferring posterior.
-Sampling... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:01
-Mean:  [-6.76037714e-01 -1.67944768e+00  1.61404920e-03  1.58269652e+00
-  7.65822584e-01]
-Ranking Deciles:
-[[0 1 1 1 1 1 1 1 1 1]
- [0 0 0 0 0 0 0 0 1 2]
- [0 0 2 2 2 2 2 2 2 4]
- [0 2 3 4 4 4 4 4 4 4]
- [0 3 3 3 3 3 3 3 3 4]]
-Ranking Probabilities (rows are items, columns are rankings):
-[[6.0780e-02 9.3543e-01 3.7400e-03 0.0000e+00 5.0000e-05]
- [7.8972e-01 6.2380e-02 1.4145e-01 1.7000e-04 6.2800e-03]
- [1.4292e-01 2.1300e-03 7.3222e-01 5.4500e-03 1.1728e-01]
- [6.4300e-03 6.0000e-05 1.1810e-01 1.2262e-01 7.5279e-01]
- [1.5000e-04 0.0000e+00 4.4900e-03 8.7176e-01 1.2360e-01]]
-Entropy:  -4.45792309625278
-```
-
-You can see the source code on GitHub [here](https://github.com/max-niederman/fullrank).
-
 ## References
 
-[1] bibliography.bib
+[1] R. B. Arellano-Valle and A. Azzalini, "Some properties of the unified skew-normal distribution," *Statistical Papers*, vol. 63, pp. 461–487, 2022. [doi:10.1007/s00362-021-01235-2](https://doi.org/10.1007/s00362-021-01235-2)
