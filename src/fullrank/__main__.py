@@ -30,7 +30,7 @@ def compare(
     if comparisons is None:
         print("[bold red]No comparisons were made.[/bold red]", file=sys.stderr)
         return
-
+    
     print(
         f"[bold green]Finished {len(comparisons)} comparisons of {len(items)} items.[/bold green]",
         file=sys.stderr,
@@ -70,6 +70,26 @@ def raw_sample(
             for sample in posterior.sample(batch_size).T:
                 f.write(json.dumps(sample.tolist()) + "\n")
 
+
+@app.command()
+def infer_sun():
+    """
+    Infer the posterior unified skew-normal distribution, and print its parameters.
+    """
+    compare_result = json.loads(sys.stdin.read())
+    items = compare_result["items"]
+    posterior = fullrank.infer(
+        np.zeros(len(items)),
+        compare_result["prior_var"] * np.eye(len(items)),
+        compare_result["comparisons"],
+    )
+    print("[bold green]Finished inferring posterior.[/bold green]", file=sys.stderr)
+
+    print("[bold]xi:[/bold]", posterior.xi, sep="\n")
+    print("[bold]Omega:[/bold]", posterior.prior_cov, sep="\n")
+    print("[bold]Delta:[/bold]", posterior.Delta, sep="\n")
+    print("[bold]tau:[/bold]", posterior.tau, sep="\n")
+    print("[bold]Gamma:[/bold]", posterior.Gamma, sep="\n")
 
 @app.command()
 def stats(
@@ -118,7 +138,6 @@ def stats(
             "[bold]Entropy:[/bold] ",
             posterior_stats.lddp(posterior, samples=samples),
         )
-
 
 if __name__ == "__main__":
     app()

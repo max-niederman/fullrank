@@ -40,6 +40,7 @@ class Posterior:
         self.comp_matrix = comp_matrix
         self.xi = prior_mean  # ξ <- μ
         self.Delta = prior_cov @ comp_matrix.T  # Δ <- ΣDᵀ
+        self.tau = comp_matrix @ prior_mean  # τ = D μ
         self.Gamma = (
             np.eye(self.m) + comp_matrix @ prior_cov @ comp_matrix.T
         )  # Γ <- I + DΣDᵀ

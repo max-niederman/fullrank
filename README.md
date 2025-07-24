@@ -17,6 +17,8 @@ fullrank compare items.txt > comparisons.json
 fullrank stats < comparisons.json
 # compute raw samples in JSONL format for your own processing
 fullrank raw-sample 10000 samples.jsonl < comparisons.json
+# get the unified skew-normal distribution parameters of the posterior
+fullrank infer-sun < comparisons.json
 ```
 
 ## Background

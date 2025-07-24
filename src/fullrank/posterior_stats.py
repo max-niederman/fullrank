@@ -5,36 +5,34 @@ import approxcdf
 from fullrank import Posterior
 
 
-# def mean(posterior: Posterior) -> np.ndarray:
-#     """
-#     Compute the mean of the posterior distribution.
+def mean(posterior: Posterior) -> np.ndarray:
+    """
+    Compute the mean of the posterior distribution.
 
-#     See Eq. 30 in https://link.springer.com/article/10.1007/BF03263544
-#     See Eq. 7 in https://link.springer.com/article/10.1007/s00362-021-01235-2 (with correction)
-#     """
-#     tau = posterior.comp_matrix @ posterior.prior_mean
+    See Eq. 30 in https://link.springer.com/article/10.1007/BF03263544
+    See Eq. 7 in https://link.springer.com/article/10.1007/s00362-021-01235-2 (with correction)
+    """
+    normalization_constant = multivariate_normal.cdf(
+        posterior.tau,
+        cov=posterior.Gamma,
+    )
 
-#     normalization_constant = multivariate_normal.cdf(
-#         tau,
-#         cov=posterior.Gamma,
-#     )
+    nabla_phi = norm.pdf(posterior.tau)
+    if posterior.m > 1:
+        for j in range(posterior.m):
+            tau_others = np.delete(posterior.tau, j, axis=0)
+            Gamma_others = np.delete(np.delete(posterior.Gamma, j, axis=0), j, axis=1)
+            Gamma_j_to_others = np.delete(posterior.Gamma[:, j], j)
+            tau_tilde = posterior.tau[j] * Gamma_j_to_others
+            Gamma_tilde = Gamma_others - np.outer(
+                Gamma_j_to_others, Gamma_j_to_others
+            )
+            nabla_phi[j] *= multivariate_normal.cdf(
+                tau_others - tau_tilde,
+                cov=Gamma_tilde,
+            )
 
-#     nabla_phi = norm.pdf(tau)
-#     if posterior.m > 1:
-#         for j in range(posterior.m):
-#             tau_others = np.delete(tau, j, axis=0)
-#             Gamma_others = np.delete(np.delete(posterior.Gamma, j, axis=0), j, axis=1)
-#             Gamma_j_to_others = np.delete(posterior.Gamma[:, j], j)
-#             tau_tilde = tau[j] * Gamma_j_to_others
-#             Gamma_tilde = Gamma_others - np.outer(
-#                 Gamma_j_to_others, Gamma_j_to_others
-#             )
-#             nabla_phi[j] *= multivariate_normal.cdf(
-#                 tau_others - tau_tilde,
-#                 cov=Gamma_tilde,
-#             )
-
-#     return posterior.xi + 1 / normalization_constant * posterior.Delta @ nabla_phi
+    return posterior.xi + 1 / normalization_constant * posterior.Delta @ nabla_phi
 
 
 def lddp(
@@ -50,12 +48,9 @@ def lddp(
     else:
         samples = samples
 
-    # τ = D μ
-    tau = posterior.comp_matrix @ posterior.prior_mean
-
     # ln Z = ln Phi(τ; Γ)
     log_normalization_constant = multivariate_normal.logcdf(
-        tau,
+        posterior.tau,
         cov=posterior.Gamma,
     )
 
