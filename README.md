@@ -88,8 +88,8 @@ That is, $D_{i j} = 1$ if item $j$ wins the $i$th comparison, $D_{i j} = -1$ if 
 
 ```math
 \begin{align}
-p(\mathbf{s}|D) &= p(\mathbf{s}) p(D|\mathbf{s}) / p(D) \\\\
-&= \phi (\mathbf{s}; \boldsymbol{\mu}, \Sigma) \left(\Pr[D \mathbf{s} < \mathbf{z}]\right) / \Pr[D \mathbf{t} < \mathbf{z}]
+p(\mathbf{s}|D) &= p(\mathbf{s}) \frac{p(D|\mathbf{s})}{p(D)} \\\\
+&= \phi (\mathbf{s}; \boldsymbol{\mu}, \Sigma) \frac{\Pr[D \mathbf{s} < \mathbf{z}]}{\Pr[D \mathbf{t} < \mathbf{z}]}
 \end{align}
 ```
 
