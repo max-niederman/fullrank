@@ -2,7 +2,9 @@ from dataclasses import dataclass
 import numpy as np
 from textual.app import App, ComposeResult
 from textual.containers import HorizontalGroup, Center
-from textual.widgets import Header, Footer, Button, ProgressBar, Static
+from textual.widgets import Header, Footer, Button, ProgressBar, Static, LoadingIndicator
+from textual import work
+from textual.worker import get_current_worker
 
 from fullrank import infer, posterior_stats, Comparison
 
@@ -57,8 +59,7 @@ class ComparisonApp(App[list[Comparison]]):
             yield ProgressBar(
                 total=1.0, show_eta=False, show_percentage=False, id="entropy-bar"
             )
-            yield Static("0.00", id="entropy-value")
-            yield Static(" bits")
+            yield Static("0.00 bits", id="entropy-value")
         with HorizontalGroup(id="comparison-buttons"):
             yield Button(self.items[self.left_index], action="left", id="left-button")
             yield Button(
@@ -98,8 +99,26 @@ class ComparisonApp(App[list[Comparison]]):
         self.query_one("#left-button").label = self.items[self.left_index]
         self.query_one("#right-button").label = self.items[self.right_index]
 
-        kl_div = -posterior_stats.lddp(posterior, samples=100)
-        self.query_one("#entropy-value").update(f"{kl_div:.2f}")
+        self.query_one("#entropy-value").update("Calculating...")
+
+        # Offload entropy calculation to thread worker
+        self.calculate_entropy(posterior)
+
+    @work(thread=True)
+    def calculate_entropy(self, posterior) -> None:
+        """Calculate KL divergence in a background thread to avoid blocking UI."""
+        worker = get_current_worker()
+        
+        if not worker.is_cancelled:
+            kl_div = -posterior_stats.lddp(posterior, samples=100)
+            
+            if not worker.is_cancelled:
+                # Update UI from thread using call_from_thread
+                self.call_from_thread(self.update_entropy_display, kl_div)
+    
+    def update_entropy_display(self, kl_div: float) -> None:
+        """Update the entropy display widgets with calculated value."""
+        self.query_one("#entropy-value").update(f"{kl_div:.2f} bits")
         self.query_one("#entropy-bar").update(progress=1.0 - np.exp(-kl_div))
 
     def action_quit(self) -> None:
